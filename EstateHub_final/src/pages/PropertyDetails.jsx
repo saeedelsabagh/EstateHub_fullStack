@@ -26,6 +26,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import { useEstate } from "../ContextRorReducer";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import useCurrentUser from "../api/useCurrentUser";
 import { getImageUrl } from "../utils/imageUrl";
 
 export default function PropertyDetails() {
@@ -41,7 +42,8 @@ export default function PropertyDetails() {
   const [inquiryError, setInquiryError] = useState("");
   const [inquirySuccess, setInquirySuccess] = useState("");
 
-  const userId = state.user?.id;
+  const { user, loading: sessionLoading, error: sessionError } = useCurrentUser();
+  const userId = user?.id;
 
   // Get property from backend
   useEffect(() => {
@@ -308,7 +310,9 @@ export default function PropertyDetails() {
               </Button>
 
               <IconButton
-                disabled={favoriteLoading || !userId}
+                disabled={favoriteLoading || sessionLoading || !userId}
+                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                title={sessionError || (!userId ? "Sign in to save this property" : undefined)}
                 onClick={handleToggleFavorite}
               >
                 {isFavorite ? (

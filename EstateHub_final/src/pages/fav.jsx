@@ -17,17 +17,18 @@ import {
 import { Link } from "react-router-dom";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useEstate } from "../ContextRorReducer";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import useCurrentUser from "../api/useCurrentUser";
 
 export default function Favorites() {
-  const { state } = useEstate();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [error, setError] = useState("");
 
-  const userId = state.user?.id;
+  const { user, loading: sessionLoading, error: sessionError } = useCurrentUser();
+  const userId = user?.id;
 
   useEffect(() => {
     if (!userId) {
@@ -37,6 +38,7 @@ export default function Favorites() {
     }
 
     setLoading(true);
+    setError("");
 
     api
       .get(`/favorite/${userId}`)
@@ -45,6 +47,7 @@ export default function Favorites() {
       })
       .catch((error) => {
         console.error("Failed to load favorites:", error);
+        setError("Could not load favorites. Please reload to try again.");
       })
       .finally(() => {
         setLoading(false);
@@ -100,8 +103,10 @@ export default function Favorites() {
           {favorites.length} saved properties
         </Typography>
 
-        {loading ? (
+        {loading || sessionLoading ? (
           <Typography>Loading favorites...</Typography>
+        ) : sessionError || error ? (
+          <Typography role="alert" color="error">{sessionError || error}</Typography>
         ) : !userId ? (
           <Typography color="text.secondary">
             Please log in to view your favorites.

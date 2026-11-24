@@ -25,7 +25,7 @@ import SendIcon from "@mui/icons-material/Send";
 
 import api from "../api/axios";
 import { getImageUrl } from "../utils/imageUrl";
-import { useEstate } from "../ContextRorReducer";
+import useCurrentUser from "../api/useCurrentUser";
 
 const formatTime = (date) => {
   if (!date) return "";
@@ -48,7 +48,6 @@ const getTitle = (property) =>
 const getImage = (property) => getImageUrl(property?.imageUrl || property?.image);
 
 export default function UserDashboard() {
-  const { state } = useEstate();
   const navigate = useNavigate();
 
   const [inquiries, setInquiries] = useState([]);
@@ -60,12 +59,10 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [favoriteCount, setFavoriteCount] = useState(null);
 
-  const userId = state.user?.id;
-
-  const favorites = (state.favorites || []).filter(
-    (item) => String(item.userId) === String(userId),
-  );
+  const { user, loading: sessionLoading, error: sessionError } = useCurrentUser();
+  const userId = user?.role === "USER" ? user.id : null;
 
   useEffect(() => {
     if (!userId) {
@@ -142,6 +139,19 @@ export default function UserDashboard() {
     return () => {
       cancelled = true;
     };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const controller = new AbortController();
+    api.get(`/favorite/${userId}`, { signal: controller.signal })
+      .then(({ data }) => setFavoriteCount(data.length))
+      .catch(() => {
+        if (!controller.signal.aborted) setFavoriteCount(null);
+      });
+
+    return () => controller.abort();
   }, [userId]);
 
   const getInquiryProperty = (inquiry) =>
@@ -324,7 +334,7 @@ export default function UserDashboard() {
                     <Typography color="text.secondary">Favorites</Typography>
 
                     <Typography variant="h4" fontWeight={800}>
-                      {favorites.length}
+                      {favoriteCount ?? "—"}
                     </Typography>
                   </Box>
                 </Stack>
@@ -365,11 +375,15 @@ export default function UserDashboard() {
           View property details and continue your conversations with agents.
         </Typography>
 
-        {loading ? (
+        {loading || sessionLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
             <CircularProgress />
           </Box>
-        ) : inquiries.length === 0 ? (
+        ) : !userId ? (
+          <Alert severity="info">
+            {sessionError || "Sign in with a customer account to view your conversations."}
+          </Alert>
+        ) : error && inquiries.length === 0 ? null : inquiries.length === 0 ? (
           <Card
             elevation={0}
             sx={{
