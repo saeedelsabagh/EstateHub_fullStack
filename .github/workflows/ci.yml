@@ -19,16 +19,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Generate temporary credentials
-        run: |
-          umask 077
-          printf 'DB_ROOT_PASSWORD=%s\nDB_PASSWORD=%s\nJWT_SECRET=%s\n' \
-            "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .env
-
       - name: Start the demo stack
-        run: |
-          docker compose config --quiet
-          docker compose up -d --build
+        run: bash deploy/deploy.sh
 
       - name: Check the frontend and property API
         run: |

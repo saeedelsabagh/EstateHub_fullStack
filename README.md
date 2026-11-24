@@ -10,68 +10,40 @@ The Compose project runs a static frontend, the API, and MySQL. It binds only th
 
 ### Start EstateHub
 
-Run these commands on a Linux host with Docker Compose, OpenSSL, and host Nginx. Publish the deployment changes to GitHub before cloning.
+On a Linux server with Docker Compose, OpenSSL, and Nginx:
 
 ```sh
 git clone https://github.com/saeedelsabagh/EstateHub_fullStack.git estatehub
 cd estatehub
-
-# Set an unused port and check it before continuing.
-estatehub_port=18081
-ss -ltn "sport = :$estatehub_port"
-
-# First install only. Keep the existing .env on subsequent deployments.
-(
-  set -euC
-  umask 077
-  root_password=$(openssl rand -hex 32)
-  db_password=$(openssl rand -hex 32)
-  jwt_secret=$(openssl rand -hex 32)
-  printf 'ESTATEHUB_PORT=%s\nDB_ROOT_PASSWORD=%s\nDB_PASSWORD=%s\nJWT_SECRET=%s\n' \
-    "$estatehub_port" "$root_password" "$db_password" "$jwt_secret" > .env
-)
-
-docker compose config --quiet
-docker compose up -d --build
-docker compose ps
-curl --retry 12 --retry-delay 5 --retry-all-errors -fsS "http://127.0.0.1:$estatehub_port/api/property"
+bash deploy/deploy.sh
 ```
 
-Use `.env.example` as the environment variable reference. Keep `.env` on the server with owner-only permissions. Frontend `VITE_*` variables are public build settings.
+The script checks port `18081`, generates a private `.env` on first run, builds the containers, and checks the API. If the port is occupied, run `bash deploy/deploy.sh 18082` with an unused port and use that port in the Nginx configuration. Keep the existing `.env` on updates. Frontend `VITE_*` variables are public build settings.
 
 ### Connect host Nginx
 
-In the Nginx directory this server includes for virtual hosts, create a file dedicated to EstateHub, such as `estatehub.conf`. Match the port to `ESTATEHUB_PORT`.
-
-```nginx
-server {
-    listen 80;
-    server_name estate-hub-1.duckdns.org;
-    client_max_body_size 2m;
-
-    location / {
-        proxy_pass http://127.0.0.1:18081;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Enable that file if your distribution separates available and enabled virtual hosts, then validate and reload. Configure HTTPS for this subdomain with your server's existing certificate workflow before sharing the demo. Keep the same `location` block in the HTTPS virtual host.
+For Nginx installations using `sites-available` and `sites-enabled`, run the commands below from the checkout. If the domain already has a virtual host, update its upstream instead of adding another virtual host. On other installations, use the directory included by Nginx for virtual hosts.
 
 ```sh
-sudo nginx -t && sudo systemctl reload nginx
+sudo test ! -e /etc/nginx/sites-available/estatehub.conf &&
+  sudo install -m 644 deploy/nginx.conf /etc/nginx/sites-available/estatehub.conf &&
+  sudo ln -s /etc/nginx/sites-available/estatehub.conf /etc/nginx/sites-enabled/estatehub.conf &&
+  sudo nginx -t &&
+  sudo systemctl reload nginx
+```
+
+If you chose a different port, change the upstream in `deploy/nginx.conf` before copying it. Once the domain points to this host and port 80 is reachable, configure HTTPS with your existing certificate tooling. If Certbot and its Nginx plugin are already installed:
+
+```sh
+sudo certbot --nginx --cert-name estate-hub-1.duckdns.org -d estate-hub-1.duckdns.org --redirect
 curl -fsS https://estate-hub-1.duckdns.org/api/property
 ```
 
 ### Update or inspect EstateHub
 
-From the EstateHub checkout, run:
-
 ```sh
 git pull --ff-only
-docker compose up -d --build
-docker compose ps
+bash deploy/deploy.sh
 docker compose logs --tail=100 api
 ```
 
