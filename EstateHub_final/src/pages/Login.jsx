@@ -9,7 +9,7 @@ import {
   Divider,
   Stack,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import { useEstate } from "../ContextRorReducer";
 import api from "../api/axios";
@@ -18,6 +18,7 @@ import { useState } from "react";
 export default function Login() {
   const { state, dispatch } = useEstate();
   const navigate = useNavigate();
+  const { state: navigationState } = useLocation();
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -60,6 +61,8 @@ export default function Login() {
         navigate("/dashboard/admin");
       } else if (role === "agent") {
         navigate("/dashboard/agent");
+      } else if (role === "user" && Number.isInteger(navigationState?.inquiryPropertyId)) {
+        navigate(`/properties/${navigationState.inquiryPropertyId}`, { replace: true });
       } else {
         navigate("/dashboard/user");
       }

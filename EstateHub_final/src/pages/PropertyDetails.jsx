@@ -158,8 +158,9 @@ export default function PropertyDetails() {
   }
 
   const handleSendInquiry = async () => {
-    if (!state.user?.id) {
-      navigate("/login");
+    const loginState = { inquiryPropertyId: property.id };
+    if (!localStorage.getItem("token")) {
+      navigate("/login", { state: loginState });
       return;
     }
 
@@ -172,6 +173,12 @@ export default function PropertyDetails() {
       setInquiryLoading(true);
       setInquiryError("");
       setInquirySuccess("");
+
+      const { data: user } = await api.get("/users/me");
+      if (user.role !== "USER") {
+        setInquiryError("Sign in with a customer account to send an inquiry.");
+        return;
+      }
 
       // 1. Create the inquiry
       const inquiryResponse = await api.post("/addInquiry", {
@@ -190,6 +197,15 @@ export default function PropertyDetails() {
 
       dispatch({ type: "RESET_INQUIRY" });
     } catch (error) {
+      if (
+        error.config?.url === "/users/me" &&
+        [401, 403].includes(error.response?.status)
+      ) {
+        localStorage.removeItem("token");
+        navigate("/login", { state: loginState });
+        return;
+      }
+
       console.error("Request URL:", error.config?.url);
       console.error("Request Method:", error.config?.method);
       console.error("Status:", error.response?.status);
