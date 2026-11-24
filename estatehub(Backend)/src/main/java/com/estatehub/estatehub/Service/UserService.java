@@ -21,6 +21,10 @@ public class UserService {
         return userRepo.findAll();
     }
 
+    public long countByRole(String role) {
+        return userRepo.countByRoleIgnoreCase(role);
+    }
+
     // Find user by email
     public Optional<User> findUserByEmail(String email) {
         return userRepo.findByEmail(email);

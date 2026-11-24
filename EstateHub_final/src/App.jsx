@@ -11,6 +11,7 @@ import UserDashboard from "./pages/UserDashboard";
 import AgentDashboard from "./pages/AgentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Favorites from "./pages/fav";
+import ProtectedRoute from "./ProtectedRoute";
 
 // Admin pages
 import AdminUsers from "./pages/AdminUsers";
@@ -29,10 +30,11 @@ export default function App() {
 
       <Route path="/dashboard/user" element={<UserDashboard />} />
       <Route path="/dashboard/agent" element={<AgentDashboard />} />
-      <Route path="/dashboard/admin" element={<AdminDashboard />} />
-
-      <Route path="/dashboard/admin/users" element={<AdminUsers />} />
-      <Route path="/dashboard/admin/posts" element={<AdminPosts />} />
+      <Route element={<ProtectedRoute role="ADMIN" />}>
+        <Route path="/dashboard/admin" element={<AdminDashboard />} />
+        <Route path="/dashboard/admin/users" element={<AdminUsers />} />
+        <Route path="/dashboard/admin/posts" element={<AdminPosts />} />
+      </Route>
 
       <Route path="/dashboard/agent/Addpost" element={<Addpost />} />
       <Route path="/dashboard/agent/properties" element={<MyProperties />} />

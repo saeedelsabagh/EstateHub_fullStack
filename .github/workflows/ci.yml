@@ -26,6 +26,8 @@ jobs:
         run: |
           curl --retry 20 --retry-delay 3 --retry-all-errors -fsS http://127.0.0.1:18081/ > /dev/null
           curl --retry 20 --retry-delay 3 --retry-all-errors -fsS http://127.0.0.1:18081/api/property | jq -e 'type == "array"'
+          curl -fsS http://127.0.0.1:18081/api/users/stats | jq -e '.clients == 0 and .agents == 0'
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18081/api/users)" = 403
 
       - name: Show container logs on failure
         if: failure()

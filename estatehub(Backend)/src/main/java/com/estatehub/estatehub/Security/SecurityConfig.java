@@ -67,8 +67,14 @@ public class SecurityConfig {
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
                                 "/property",
-                                "/property/**"
+                                "/property/**",
+                                "/users/stats"
                         ).permitAll()
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/users"
+                        ).hasRole("ADMIN")
 
                         .requestMatchers(
                                 "/favorite/**"

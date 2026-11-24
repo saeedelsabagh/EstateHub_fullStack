@@ -52,23 +52,11 @@ export default function Home() {
       }
 
       try {
-        const response = await api.get("/users");
-
-        const users = Array.isArray(response.data) ? response.data : [];
-
-        setClientsCount(
-          users.filter(
-            (user) => String(user.role || "").toUpperCase() === "USER",
-          ).length,
-        );
-
-        setAgentsCount(
-          users.filter(
-            (user) => String(user.role || "").toUpperCase() === "AGENT",
-          ).length,
-        );
+        const { data } = await api.get("/users/stats");
+        setClientsCount(data.clients);
+        setAgentsCount(data.agents);
       } catch (error) {
-        console.error("Failed to load users:", error);
+        console.error("Failed to load user statistics:", error);
       }
     };
 

@@ -24,6 +24,14 @@ public class UserCtrl {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/users/stats")
+    public Map<String, Long> getUserStats() {
+        return Map.of(
+                "clients", userService.countByRole("USER"),
+                "agents", userService.countByRole("AGENT")
+        );
+    }
+
     // Find user by email
     @GetMapping("/email/{email}")
     public ResponseEntity<User> findUserByEmail(

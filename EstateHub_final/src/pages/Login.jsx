@@ -51,9 +51,7 @@ export default function Login() {
 
       localStorage.setItem("token", token);
 
-      const userResponse = await api.get(
-        `/email/${encodeURIComponent(state.login.email)}`
-      );
+      const userResponse = await api.get("/users/me");
 
       const user = userResponse.data;
       const role = String(user.role || "").toLowerCase();
