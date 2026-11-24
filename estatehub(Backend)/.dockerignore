@@ -1,0 +1,12 @@
+**/.env*
+target
+uploads
+.idea
+.git
+*.log
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.jks
+src/main/java/com/estatehub/estatehub/nnn.java

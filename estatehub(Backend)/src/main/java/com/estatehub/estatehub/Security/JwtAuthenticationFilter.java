@@ -38,7 +38,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -50,12 +49,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         User user = userRepository.findByEmail(email)
                 .orElse(null);
-
-
-        System.out.println("JWT email: " + email);
-        System.out.println(
-                "User role: " + (user != null ? user.getRole() : "NOT FOUND")
-        );
 
 
         if (user != null

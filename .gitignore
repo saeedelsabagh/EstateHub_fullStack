@@ -14,3 +14,13 @@
 
 # Uploaded files
 **/uploads/
+
+# Local credentials and database backups
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.sql.gz
+*.dump
+*.log

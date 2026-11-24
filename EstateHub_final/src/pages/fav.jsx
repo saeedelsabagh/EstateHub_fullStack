@@ -1,3 +1,4 @@
+import { getImageUrl } from "../utils/imageUrl";
 import {
   AppBar,
   Toolbar,
@@ -117,7 +118,7 @@ export default function Favorites() {
                   <CardMedia
                     component="img"
                     height="220"
-                    image={property.imageUrl}
+                    image={getImageUrl(property.imageUrl)}
                     alt={property.title}
                   />
 

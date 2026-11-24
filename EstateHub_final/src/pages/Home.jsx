@@ -30,6 +30,7 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useEstate } from "../ContextRorReducer";
+import AIChat from "./AIChat";
 
 export default function Home() {
   const { state, dispatch } = useEstate();
@@ -43,9 +44,7 @@ export default function Home() {
       try {
         const response = await api.get("/property");
 
-        const propertyData = Array.isArray(response.data)
-          ? response.data
-          : [];
+        const propertyData = Array.isArray(response.data) ? response.data : [];
 
         setProperties(propertyData);
       } catch (error) {
@@ -55,22 +54,18 @@ export default function Home() {
       try {
         const response = await api.get("/users");
 
-        const users = Array.isArray(response.data)
-          ? response.data
-          : [];
+        const users = Array.isArray(response.data) ? response.data : [];
 
         setClientsCount(
           users.filter(
-            (user) =>
-              String(user.role || "").toUpperCase() === "USER"
-          ).length
+            (user) => String(user.role || "").toUpperCase() === "USER",
+          ).length,
         );
 
         setAgentsCount(
           users.filter(
-            (user) =>
-              String(user.role || "").toUpperCase() === "AGENT"
-          ).length
+            (user) => String(user.role || "").toUpperCase() === "AGENT",
+          ).length,
         );
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -82,10 +77,9 @@ export default function Home() {
 
   const approvedProperties = properties.filter(
     (property) =>
-      String(property.propertyStatus || "").toUpperCase() === "APPROVED"
+      String(property.propertyStatus || "").toUpperCase() === "APPROVED",
   );
 
-  
   return (
     <Box sx={{ overflow: "hidden" }}>
       {/* NAVBAR */}
@@ -673,6 +667,7 @@ export default function Home() {
           </Typography>
         </Container>
       </Box>
+      <AIChat />
     </Box>
   );
 }

@@ -25,17 +25,7 @@ import { useEffect, useState } from "react";
 import { useEstate } from "../ContextRorReducer";
 import api from "../api/axios";
 
-const getImageUrl = (imageUrl) => {
-  if (!imageUrl) return "";
-
-  if (imageUrl.startsWith("http")) {
-    return imageUrl;
-  }
-
-  return `http://localhost:8081${
-    imageUrl.startsWith("/") ? "" : "/"
-  }${imageUrl}`;
-};
+import { getImageUrl } from "../utils/imageUrl";
 
 
 

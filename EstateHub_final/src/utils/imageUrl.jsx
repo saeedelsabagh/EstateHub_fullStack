@@ -1,5 +1,5 @@
 
-const API_BASE_URL = "http://localhost:8081";
+import { API_BASE_URL } from "../api/axios";
 
 export const getImageUrl = (imageUrl) => {
   if (!imageUrl) return "/placeholder-property.jpg";

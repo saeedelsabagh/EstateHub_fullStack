@@ -79,6 +79,8 @@ public class SecurityConfig {
                                 "/files/upload"
                         ).hasRole("AGENT")
 
+                        .requestMatchers("/ai/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
 

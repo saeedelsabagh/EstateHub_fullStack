@@ -24,6 +24,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 
 import api from "../api/axios";
+import { getImageUrl } from "../utils/imageUrl";
 import { useEstate } from "../ContextRorReducer";
 
 const formatTime = (date) => {
@@ -44,7 +45,7 @@ const getTitle = (property) =>
   property?.propertyTitle ||
   `Property #${property?.id ?? ""}`;
 
-const getImage = (property) => property?.imageUrl || property?.image || "";
+const getImage = (property) => getImageUrl(property?.imageUrl || property?.image);
 
 export default function UserDashboard() {
   const { state } = useEstate();
@@ -482,7 +483,7 @@ export default function UserDashboard() {
                           <Box
                             component="img"
                             src={
-                              getImage(property) || "/placeholder-property.jpg"
+                              getImage(property)
                             }
                             alt={getTitle(property)}
                             onError={(event) => {

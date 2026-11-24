@@ -1,0 +1,44 @@
+name: Build and smoke test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Generate temporary credentials
+        run: |
+          umask 077
+          printf 'DB_ROOT_PASSWORD=%s\nDB_PASSWORD=%s\nJWT_SECRET=%s\n' \
+            "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .env
+
+      - name: Start the demo stack
+        run: |
+          docker compose config --quiet
+          docker compose up -d --build
+
+      - name: Check the frontend and property API
+        run: |
+          curl --retry 20 --retry-delay 3 --retry-all-errors -fsS http://127.0.0.1:18081/ > /dev/null
+          curl --retry 20 --retry-delay 3 --retry-all-errors -fsS http://127.0.0.1:18081/api/property | jq -e 'type == "array"'
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --tail=100
+
+      - name: Remove the temporary stack
+        if: always()
+        run: docker compose down --volumes

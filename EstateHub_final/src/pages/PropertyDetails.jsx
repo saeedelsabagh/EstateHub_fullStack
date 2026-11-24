@@ -26,6 +26,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import { useEstate } from "../ContextRorReducer";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { getImageUrl } from "../utils/imageUrl";
 
 export default function PropertyDetails() {
   const { state, dispatch } = useEstate();
@@ -226,7 +227,7 @@ export default function PropertyDetails() {
               component="img"
               src={
                 property.imageUrl
-                  ? `http://localhost:8081${property.imageUrl}`
+                  ? getImageUrl(property.imageUrl)
                   : "/placeholder-property.jpg"
               }
               alt={property.title}
