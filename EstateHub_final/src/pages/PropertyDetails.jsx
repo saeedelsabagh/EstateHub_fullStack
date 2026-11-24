@@ -16,7 +16,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -31,6 +31,7 @@ import { getImageUrl } from "../utils/imageUrl";
 export default function PropertyDetails() {
   const { state, dispatch } = useEstate();
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
